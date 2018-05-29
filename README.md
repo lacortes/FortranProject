@@ -9,4 +9,4 @@ Two 1000 x 1000  matrices will be multiplied together using the same algorithm, 
 Here  are the resulsts: 
 
 
-![alt text] (https://i.imgur.com/QmyERD9.png "Results")
+![](results.png)
