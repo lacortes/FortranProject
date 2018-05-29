@@ -1,0 +1,252 @@
+Fortran Features::
+
+	Writeability is great! language is case insensitive which makes coding easier
+	and even less picky than say Java. Also the declaration of variables and data
+	types, and functions and etc is really easy! no need for long headers.
+	No use of semi colons or paranthesis all over the place. 
+	
+	
+	Note: Do not use the word 'return' in other words. compiler will confuse it with subroutine return keyword 
+	
+
+		
+	
+	Data Types:
+	1.) integer			  ! 32 bit integer by default
+		a.) integer(kind=2) :: i   ! 16 bit integer
+		b.) integer(kind=4) :: j   ! 32 bit integer
+		c.) integer(kind=6) :: k  ! 64 bit integer
+
+	2.) real 			! 32 bit real ( float in java - single precision)
+		a.) real(kind=8) :: x 	! 64 bit real ( double in java - double precision)
+		
+	3.) logical 			! boolean value
+		a.) logical :: L1	! single logical variable
+		b.) logical, dimension(100) :: L2 ! array of logical variables
+
+	4.) character		! single character
+		a.) character(len= x) :: C1		! String of length x
+		b.) character, dimension(100) :: C2 	! array of characters
+		c.) character(len=80), dimension(10) :: C3	! array of strings size 80
+
+	
+	! unlike C/C++, fortran has an intrinsic datatype of complex numbers
+	5.) complex
+		a.) complex :: i 	! complex number 	
+
+--------------------------------------------------------------------------
+
+	DERIVED DATA TYPES - OBJECTS: 
+	
+									! Defining a Derived data type
+		type student
+		    character(len = 50) :: name
+		    integer :: student_id
+		end type studenT
+									! Creating and using objects
+		type(student) :: stu_1
+									! Access components using component selector character (%)
+		stu_1%name = "john smith"
+		stu_1%student_id = 1234	
+									! Printing object data
+		print *, stu_1%name
+		print *, stu_1%student_id
+		
+----------------------------------------------------------------------------------------------------------
+
+	FORTRAN 2003 was the first fortran to adopt polymorphism but Fortran 90/95 had derived data types
+								 and type extension
+
+		type shape
+			integer :: color
+			logical :: filled
+			integer :: x
+			integer :: y
+		end type shape
+
+		type, extends(shape) :: rectangle
+			integer :: length
+			integer :: width
+		end type rectangle
+		
+		type, extends(rectangle) :: square
+			! code here
+		end type square 
+
+		
+		type(square) :: sq 		! declaration of square object
+		
+		sq%color			! access color component for sq
+		sq%rectangle%color		! access color component for sq
+		sq%rectangle%shape%color	! access color component for sq
+
+		
+
+							
+		CLASS(shape) :: sh		! create a polymorphic variable 
+					! that is a variable whose data type is dynamic at runtime
+					! So it can be a shape , a rectangle, a square, or any future type extension of shape
+					! sh is a pointer variable
+
+		subroutine setColor(sh, color)
+			class(shape) :: sh 	! polymorphic variable can be a shape, rectangle, or square
+			integer :: color
+			sh%color = color	
+		end subroutine setColor
+
+
+	! if you wanna acces something under rectangle. say length then you have to use select type
+	! when using CLASS(SHAPE) :: SH the default polymorphic value is a shape
+	
+	class(shape) :: sh		! only access to shape variables
+	SELECT TYPE (sh)
+	TYPE IS (shape)
+	CLASS IS (rectangle)	! now can access rectangle components 	
+
+---------------------------------------------------------------------------------------------------------------
+
+	SUBROUTINE VS FUNCTION
+
+	! subroutine can be called but DOES NOT return anything 
+	! function can be called and returns a result 
+	
+	program test
+		CALL setColor(Sh, color)	// must use CALL to call a subroutine
+		
+		IF( leapyear( year ) ) THEN	// functions are called just like in java or C++ 	
+			!code here
+		ELSE
+			!code here
+		END IF
+	end program test
+	
+
+	subroutine setColor(sh, color)
+		! code here
+	end subroutine setColor
+	
+	
+	FUNCTION leapyear( year ) RESULT(isleapyear)
+		implicit none
+		integer, INTENT(IN) :: year 	! INTENT(IN) prevents us to overwrite the contents of input argument
+ 		logical :: isleapyear		
+	END FUNCTION leapyear
+
+	
+
+----------------------------------------------------------------------------------------------------------------
+
+	INSTRUCTIONS FOR PROGRAM CONTROL
+	! all loops in fortran start with the keyword DO
+	
+	DO i = 1, 100		! do loop 
+		IF ( a > x ) THEN	! if statement
+			EXIT	! jump out of loop
+		END IF
+	END DO
+	
+	
+	! nested if-then-else statement 
+	
+	IF (logical-expression-1) THEN
+		statements-1
+	ELSE IF (logical-expression-2) THEN
+		statements-2
+	ELSE IF (logical-expression-3) THEN
+		statement-3
+	ELSE IF (.....) THEN
+		...........
+	ELSE
+		statements-ELSE
+	END IF
+
+---------------------------------------------------------------------------------------------------------
+
+	PROGRAM STRUCTURE
+
+	With fortran, there is no need for class definition as in java. basically only a 
+	program section is needed along with any subprograms or functions
+	Same with subroutines
+	ex.
+	PROGRAM name
+		IMPLICIT NONE	
+		code
+		PRINT * , item_to_print  	! prints item_to_print	
+		PRINT '("text", i7, "text")' , INT((100))
+					! prints "text 100 text"
+	END PROGRAM name 
+	
+	! IMPLICIT NONE should always be included in programs and subroutines
+	! it disables an old feature of fortran that forced all variables starting with the
+	! letter i, j, k, l, m, and n to an integer, and all other names to reals. This can be 
+	! confusing and annoying 
+
+
+------------------------------------------------------------------------------------------------------------------
+
+
+	FORTRAN INPUT/OUTPUT
+	program pname 
+		implicit none
+		PRINT*, "text can go here"	
+		READ(*,*) x
+		PRINT*, X	! cursor automatically will advance to the next line	
+		WRITE(*,FMT='(A)',ADVANCE="NO") 
+				! output to console, suppress auto linefeed		
+	end program pname
+
+
+------------------------------------------------------------------------------------------------------------	
+	USING SIN AND COS IN FORTRAN
+	
+	Example:
+		program test_sin
+			real :: x = 0.0
+			x = sin(x)
+		end program test_sin
+
+	Specific names:
+	Name	Argument	Return type	Standard
+	SIN(X)	REAL(4) X	REAL(4)	f77, gnu
+	DSIN(X)	REAL(8) X	REAL(8)	f95, gnu
+	CSIN(X)	COMPLEX(4) X	COMPLEX(4)	f95, gnu
+	ZSIN(X)	COMPLEX(8) X	COMPLEX(8)	f95, gnu
+	CDSIN(X)	COMPLEX(8) X	COMPLEX(8)	f95, gnu
+
+-------------------------------------------------------------------------------
+	OPERATORS IN FORTRAN
+	
+	Numerical Other Explanation
+	** Exponentiation
+	* Multiplication
+	/ Division
+	+ Addition
+	- Subtraction
+	== .EQ. Equal
+	/= .NE. Not equal
+	< .LT. Less
+	> .GT. Greater
+	<= .LE. Less or equal
+	>= .GE. Greater or equal
+	.NOT. Negation, complement
+	.AND. Logical and
+	.OR. Logical or
+	.EQV. Logical equivalence
+	.NEQV. Logical not equivalence, exclusive o
+	
+---------------------------------------------------------------------------------
+
+	ERROR HANDLING IS NOT YET SUPPORTED IN FORTRAN 
+
+	Although the Fortran programming language is 
+	evolving steadily, it still lacks a framework 
+	for error handling -- not to be confused with 
+	floating point exceptions. Therefore, the 
+	commonly used techniques for handling errors 
+	did not change much since the early days and 
+	do not benefit from the new features of Fortran 
+	2003. After discussing some historical approaches, 
+	a Fortran 2003 framework for error handling is presented. 
+	This framework also proved to be valuable in the 
+	context of unit testing and the design-by-contract 
+	(DBC) paradigm.
